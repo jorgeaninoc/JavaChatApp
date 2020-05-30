@@ -14,13 +14,12 @@ import java.net.UnknownHostException;
 import java.util.Scanner;
 
 // Main class
-public class Main {
+public class Main3 {
 
 
     public static void main(String[] args) {
         // BufferedReader to receive the input of the user
         BufferedReader userInput = new BufferedReader(new InputStreamReader(System.in));
-
         // Ask the user if he wants to start a server or join one
         System.out.println("Would you like to join or start a server?");
         System.out.println("1. Start Solution Server");
@@ -63,7 +62,7 @@ public class Main {
                     System.out.println("Please insert your name: ");
                     String name = userInput.readLine();
                     // Start the client
-                    Client c = new Client(name, address, port);
+                    ProblemClient c = new ProblemClient(name, address, port);
                 } catch (UnknownHostException e) {
                     e.printStackTrace();
                 }

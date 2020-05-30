@@ -12,7 +12,7 @@ import java.net.*;
 import java.util.LinkedHashSet;
 
 // Server class which receives all messages from the clients and broadcasts them to all the clients connected
-public class Server extends Thread implements Runnable{
+public class ProblemServer extends Thread implements Runnable{
 
     // Declare DatagramSocket for the server to receive and send messages
     private final DatagramSocket socket;
@@ -21,13 +21,13 @@ public class Server extends Thread implements Runnable{
     private final LinkedHashSet<Integer> listOfPorts;
 
     // Server constructor receives the port as a parameter
-    public Server(Integer port) throws SocketException {
+    public ProblemServer(Integer port) throws SocketException {
         this.socket = new DatagramSocket(port);
         listOfPorts = new LinkedHashSet<>();
     }
 
     // Function used to send the messages received by the server to all the clients
-    public synchronized void broadCastMessage(byte[] buf){
+    public void broadCastMessage(byte[] buf){
         listOfPorts.forEach(port -> {
             InetAddress address = null;
             try {
@@ -46,21 +46,17 @@ public class Server extends Thread implements Runnable{
     }
 
     // Function used to add clients to the list of ports
-    public synchronized void addToListOfPorts(int port){
+    public void addToListOfPorts(int port){
         listOfPorts.add(port);
-        // For each client that joins the chat initiate one
-        // Thread that will listen to the port's messages.
-        PortListener pl = new PortListener(port);
-        pl.start();
     }
 
     // Function to to check if client is already the list of ports
-    public synchronized boolean isInListOfPorts(int port){
+    public boolean isInListOfPorts(int port){
         return listOfPorts.contains(port);
     }
 
     // Function to receive the messages from the socket
-    public synchronized void receiveMessage(DatagramPacket packet){
+    public void receiveMessage(DatagramPacket packet){
         try {
             socket.receive(packet);
         } catch (IOException e) {
@@ -92,57 +88,12 @@ public class Server extends Thread implements Runnable{
             // If the port isn't in the list of ports add it
             if(!isInListOfPorts(port)){
                 this.addToListOfPorts(port);
-                // Broadcast message to all the clients
-                broadCastMessage(buf);
             }
+            // Broadcast message to all the clients
+            broadCastMessage(buf);
         }
         // Close socket
         socket.close();
     }
 
-    public class PortListener extends Thread implements Runnable {
-
-        private int port;
-        private InetAddress address;
-
-        // PortListener constructor which receives the port it will listen
-        public PortListener(int port){
-            this.port = port;
-            try {
-                this.address = InetAddress.getByName("localhost");
-            } catch (UnknownHostException e) {
-                e.printStackTrace();
-            }
-        }
-
-        @Override
-        public void run() {
-            // Declare variable to check if thread should continue running
-            boolean running = true;
-            while (running) {
-                // Receive the message
-                byte[] buf = new byte[256];
-                // Receive all the messages send through the specified port
-                DatagramPacket packet
-                        = new DatagramPacket(buf, buf.length, this.address, this.port);
-                receiveMessage(packet);
-                // Parse the message to string
-                String received
-                        = new String(packet.getData(), 0, packet.getLength());
-                if (received.equals("end")) {
-                    running = false;
-                    continue;
-                }
-                // If the port isn't in the list of ports add it
-                broadCastMessage(buf);
-            }
-            // Close socket
-            socket.close();
-        }
-
-
-    }
-
 }
-
-

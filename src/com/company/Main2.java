@@ -63,7 +63,7 @@ public class Main2 {
                     System.out.println("Please insert your name: ");
                     String name = userInput.readLine();
                     // Start the client
-                    Client c = new Client(name, address, port);
+                    ProblemClient c = new ProblemClient(name, address, port);
                 } catch (UnknownHostException e) {
                     e.printStackTrace();
                 }
@@ -96,7 +96,10 @@ public class Main2 {
                 } catch (UnknownHostException e) {
                     e.printStackTrace();
                 }
-            } else {
+            }else if(option == 5) {
+                System.out.println("Goodbye.");
+            }
+            else {
                 System.out.println("Not a valid option.");
             }
         } catch (IOException e) {

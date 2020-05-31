@@ -20,6 +20,7 @@ public class Main3 {
     public static void main(String[] args) {
         // BufferedReader to receive the input of the user
         BufferedReader userInput = new BufferedReader(new InputStreamReader(System.in));
+
         // Ask the user if he wants to start a server or join one
         System.out.println("Would you like to join or start a server?");
         System.out.println("1. Start Solution Server");
@@ -95,7 +96,10 @@ public class Main3 {
                 } catch (UnknownHostException e) {
                     e.printStackTrace();
                 }
-            } else {
+            }else if(option == 5) {
+                System.out.println("Goodbye.");
+            }
+            else {
                 System.out.println("Not a valid option.");
             }
         } catch (IOException e) {

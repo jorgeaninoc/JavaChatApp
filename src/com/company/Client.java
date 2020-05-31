@@ -22,6 +22,7 @@ public class Client {
     private InetAddress ip;
     private Integer port;
     private DatagramSocket socket;
+    private boolean running;
 
     // Constructor of the Client class
     public Client(String name, InetAddress serverIP, Integer serverPort) {
@@ -41,9 +42,11 @@ public class Client {
         this.socket.connect(this.ip, this.port);
         // Identifying the Client
         this.name = name;
+        // Allow threads to run
+        this.running = true;
         // Initiating ClientWrite Thread and ClientRead Thread
         ClientWrite w = new ClientWrite(this.socket);
-        ClientRead r = new ClientRead(this.socket);
+        ClientRead r = new ClientRead(this.socket, this.ip, this.port);
         // Starting both threads
         w.start();
         r.start();
@@ -56,10 +59,6 @@ public class Client {
         }
 
     }
-
-
-
-
 
     // Unsynchronized function to get and parse the current time
     public synchronized String getDate(){
@@ -109,7 +108,6 @@ public class Client {
 
         // Function used to send a message to the server
         public synchronized void sendMessage(String msg) throws IOException {
-
             buf = ("[" + getDate() + "] " + name + ": " + msg).getBytes();
             DatagramPacket packet
                     = new DatagramPacket(buf, buf.length, ip, port);
@@ -124,31 +122,24 @@ public class Client {
             // Function to receive the Input from the User (Unused in Problem explanation)
             BufferedReader userInput = new BufferedReader(new InputStreamReader(System.in));
             // Setting variable to check if client will continue running
-            boolean running = true;
             String msg = "";
             // While thread is running
             while (running){
                 try {
-                    // msg = userInput.readLine();
-                    // Message counter used in Problem explanation
                     synchronized (this){
-                        msg = "Message number " + getCounter();
-                        if(msg == "end"){
+                        msg = userInput.readLine();
+                        // Message counter used in Problem explanation
+                        // msg = "Message number " + getCounter();
+                        if(msg.equals("end")){
                             running = false;
                         } else {
                             // Send message to the server
-
                             this.sendMessage(msg);
-                            addCounter();
+                            // addCounter();
                         }
                     }
                 } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                try {
-                    Thread.sleep(0);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
+                    running = false;
                 }
 
             }
@@ -164,9 +155,13 @@ public class Client {
         // Needed variables to store the message received and the sock
         private byte[] buf;
         private DatagramSocket socket;
+        private int port;
+        private InetAddress ip;
 
         // Constructor of the ClientRead thread receives the client Socket as a parameter
-        public ClientRead(DatagramSocket clientSocket){
+        public ClientRead(DatagramSocket clientSocket, InetAddress ip, int port){
+            this.ip = ip;
+            this.port = port;
             this.socket = clientSocket;
             this.buf = new byte[255];
         }
@@ -174,7 +169,7 @@ public class Client {
         // Function that receives the messages from the server
         public synchronized String receiveMessage() throws IOException {
             buf = new byte[255];
-            DatagramPacket packet = new DatagramPacket(buf, buf.length);
+            DatagramPacket packet = new DatagramPacket(buf, buf.length, ip, port);
             this.socket.receive(packet);
             String received = new String(
                     packet.getData(), 0, packet.getLength());
@@ -185,23 +180,21 @@ public class Client {
         @Override
         public void run() {
             // Setting variable to check if client will continue running
-            boolean running = true;
             String msg = "";
+            boolean running = true;
             while (running){
                 try {
-                synchronized (this){
-                    msg = receiveMessage();
-                    if(msg == "end"){
-                        running = false;
-                    } else {
-                        System.out.println(msg);
+                    synchronized (this){
+                        msg = receiveMessage();
+                        if(msg.equals("end")){
+                            running = false;
+                        } else {
+                            System.out.println(msg);
+                        }
                     }
-                }
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    running = false;
                 }
-
-
             }
             // Close socket
             this.socket.close();

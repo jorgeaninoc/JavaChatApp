@@ -37,16 +37,20 @@ public class Server extends Thread implements Runnable{
             }
             DatagramPacket packet
                     = new DatagramPacket(buf, buf.length, address, port);
-            try {
-                socket.send(packet);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            sendMessage(packet);
         });
     }
 
+    public synchronized void sendMessage(DatagramPacket packet){
+        try {
+            socket.send(packet);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     // Function used to add clients to the list of ports
-    public synchronized void addToListOfPorts(int port){
+    public void addToListOfPorts(int port){
         listOfPorts.add(port);
         // For each client that joins the chat initiate one
         // Thread that will listen to the port's messages.
@@ -55,7 +59,7 @@ public class Server extends Thread implements Runnable{
     }
 
     // Function to to check if client is already the list of ports
-    public synchronized boolean isInListOfPorts(int port){
+    public boolean isInListOfPorts(int port){
         return listOfPorts.contains(port);
     }
 
@@ -75,25 +79,29 @@ public class Server extends Thread implements Runnable{
         // Declare variable to check if thread should continue running
         boolean running = true;
         while (running) {
-            // Receive the message
-            byte[] buf = new byte[256];
-            DatagramPacket packet
-                    = new DatagramPacket(buf, buf.length);
-            receiveMessage(packet);
-            // Get the port from the message
-            int port = packet.getPort();
-            // Parse the message to string
-            String received
-                    = new String(packet.getData(), 0, packet.getLength());
-            if (received.equals("end")) {
-                running = false;
-                continue;
-            }
-            // If the port isn't in the list of ports add it
-            if(!isInListOfPorts(port)){
-                this.addToListOfPorts(port);
-                // Broadcast message to all the clients
-                broadCastMessage(buf);
+            synchronized (this){
+                // Receive the message
+                byte[] buf = new byte[256];
+                DatagramPacket packet
+                        = new DatagramPacket(buf, buf.length);
+                receiveMessage(packet);
+                // Get the port from the message
+                int port = packet.getPort();
+                // Parse the message to string
+                String received
+                        = new String(packet.getData(), 0, packet.getLength());
+                if (received.equals("end")) {
+                    running = false;
+                    continue;
+                }
+                // If the port isn't in the list of ports add it
+                if(!isInListOfPorts(port)){
+                    this.addToListOfPorts(port);
+                    // Broadcast message to all the clients
+                    broadCastMessage(buf);
+                } else {
+                    broadCastMessage(buf);
+                }
             }
         }
         // Close socket
@@ -121,20 +129,21 @@ public class Server extends Thread implements Runnable{
             boolean running = true;
             while (running) {
                 // Receive the message
-                byte[] buf = new byte[256];
-                // Receive all the messages send through the specified port
-                DatagramPacket packet
-                        = new DatagramPacket(buf, buf.length, this.address, this.port);
-                receiveMessage(packet);
-                // Parse the message to string
-                String received
-                        = new String(packet.getData(), 0, packet.getLength());
-                if (received.equals("end")) {
-                    running = false;
-                    continue;
+                synchronized (this){
+                    byte[] buf = new byte[256];
+                    // Receive all the messages send through the specified port
+                    DatagramPacket packet
+                            = new DatagramPacket(buf, buf.length, this.address, this.port);
+                    receiveMessage(packet);
+                    // Parse the message to string
+                    String received
+                            = new String(packet.getData(), 0, packet.getLength());
+                    if (received.equals("end")) {
+                        running = false;
+                        continue;
+                    }
+                    broadCastMessage(buf);
                 }
-                // If the port isn't in the list of ports add it
-                broadCastMessage(buf);
             }
             // Close socket
             socket.close();

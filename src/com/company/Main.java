@@ -1,4 +1,16 @@
 /*
+ This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *  Final Proyect
  *  Concurrency Chat Application
  *  Author: Jorge Alberto Niño Cabal A01172309
@@ -16,11 +28,9 @@ import java.util.Scanner;
 // Main class
 public class Main {
 
-
     public static void main(String[] args) {
         // BufferedReader to receive the input of the user
         BufferedReader userInput = new BufferedReader(new InputStreamReader(System.in));
-
         // Ask the user if he wants to start a server or join one
         System.out.println("Would you like to join or start a server?");
         System.out.println("1. Start Solution Server");

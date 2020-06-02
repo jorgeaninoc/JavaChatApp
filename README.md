@@ -4,23 +4,18 @@ This code was made with the sole purpose of showing why is important to use sync
 
 
 ## Setup Instructions
-1. Download java in https://www.java.com/es/download/
-2. To make configuration easier I recommend downloading [IntelliJ IDEA](https://www.jetbrains.com/idea/download/#section=windows) 
-3. Clone the repository
+This project requires Java JDK version 10.0.2.
+1.	Download Final Project.jar
+2.	Cd into Final Project.jar 
+3.	Run in X terminals (recommended 3 terminals):
 
-            git clone https://github.com/jorgeaninoc/JavaChatApp/
+            java -jar Final Project.jar
+        
+4.	Start Problem or Solution Server (option 1 and 2)
+5.	Choose a port (recommended 5555)
+6.	Join with the other terminals into a Problem or Solution Server (option 3 and 4)
+7.	Compare Solution and Problem.
 
-4. Open 2 or 3 terminals
-5. cd into src/ in each terminal
-6. Run (If using 3 terminals):
-    
-            java com.company.Main in terminal 1
-            java com.company.Main2 in terminal 2
-            java com.company.Main3 in terminal 3
-    
-7. Start a Solution or Problem Server. (Option 1 and 2)
-8. Join as clients to the Solution or Problem Server. (Option 3 and 4)
-9. Compare Solution and Problem.
   
 
 
